@@ -154,6 +154,22 @@ h2 { font-weight: 700; color: var(--royal); font-size: 16px; }
 .btn-update:hover:not(:disabled) { background: var(--crimson-dark); }
 .btn-update:disabled { opacity: .45; cursor: not-allowed; }
 
+/* Export CSV button */
+.btn-export {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--royal);
+  background: #fff;
+  border: 2px solid var(--summer);
+  border-radius: 6px;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.btn-export:hover { background: var(--grey-light); border-color: var(--royal); }
+
 /* Revert button — only visible when dirty */
 .btn-revert {
   font-family: 'Lato', sans-serif;

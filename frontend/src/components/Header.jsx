@@ -8,7 +8,7 @@ function getNextMonday() {
   return d.toISOString().split('T')[0]
 }
 
-export default function Header({ plan, startDate, onStartDateChange, dirty, updating, onUpdate, onRevert }) {
+export default function Header({ plan, startDate, onStartDateChange, dirty, updating, onUpdate, onRevert, onExport }) {
   const totalDays = plan?.project_days ?? '—'
   const taskCount = plan?.total_tasks ?? '—'
   const critCount = plan?.critical_count ?? '—'
@@ -65,6 +65,11 @@ export default function Header({ plan, startDate, onStartDateChange, dirty, upda
             <span className="stat-value small">{computeEndDate()}</span>
           </div>
 
+          {plan && (
+            <button className="btn-export" onClick={onExport} title="Download current dependencies as CSV">
+              ↓ Export CSV
+            </button>
+          )}
           {dirty && !updating && (
             <button className="btn-revert" onClick={onRevert} title="Discard all unsaved changes">
               Revert

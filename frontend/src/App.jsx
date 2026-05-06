@@ -32,6 +32,54 @@ export default function App() {
 
   const dirty = dirtyTasks.size > 0
 
+  function handleExportCSV() {
+    // Build CSV matching the original source format (columns A–J)
+    const rows = [
+      ['Category', 'Subcategory', 'NEW GROUP\n(Type of Service)', 'Group Code',
+       'Dependency Cycle ', 'Work Coverage PER DAY', 'UOM',
+       'Total No. of Days (8Hrs)', 'Total Pre-Dispatch Days', 'Total Post-Dispatch Days'],
+    ]
+
+    // Use allTasksRaw as the base (has all fields), merge in any localDeps overrides
+    const taskMap = Object.fromEntries(allTasksRaw.map(t => [t.code, t]))
+    const planMap = Object.fromEntries((plan?.tasks ?? []).map(t => [t.code, t]))
+
+    for (const t of allTasksRaw) {
+      const deps = localDeps[t.code] !== undefined ? localDeps[t.code] : t.deps
+      const depsStr = deps.length ? deps.join(',') : 'NA'
+      const planTask = planMap[t.code]
+      rows.push([
+        t.category,
+        t.subcategory,
+        t.name,
+        t.code,
+        depsStr,
+        t.coverage || '-',
+        t.uom || '-',
+        planTask ? String(planTask.days) : String(t.days),   // col H — total days
+        String(t.days),                                       // col I — pre-dispatch days
+        '',                                                   // col J — post-dispatch (not tracked)
+      ])
+    }
+
+    // Escape fields that contain commas or quotes
+    const escape = val => {
+      const s = String(val ?? '')
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? `"${s.replace(/"/g, '""')}"` : s
+    }
+
+    const csv = rows.map(r => r.map(escape).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const date = new Date().toISOString().split('T')[0]
+    a.download = `HDS_PreDispatch_Dependencies_${date}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function addToast(msg, type = 'info') {
     const id = Date.now() + Math.random()
     setToasts(prev => [...prev, { id, msg, type }])
@@ -152,6 +200,7 @@ export default function App() {
         updating={updating}
         onUpdate={handleUpdate}
         onRevert={handleRevert}
+        onExport={handleExportCSV}
       />
       <Legend />
       <DraftBar
