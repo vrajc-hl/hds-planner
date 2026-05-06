@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,21 +54,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "hds_planner.wsgi.application"
 
-# SQLite — prefer /data/db.sqlite3 on Render (persistent disk), fall back to local
-_data_dir = "/data"
-if os.environ.get("DB_PATH"):
-    DB_PATH = os.environ["DB_PATH"]
-elif os.path.isdir(_data_dir):
-    DB_PATH = os.path.join(_data_dir, "db.sqlite3")
-else:
-    DB_PATH = str(BASE_DIR / "db.sqlite3")
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": DB_PATH,
+# Use DATABASE_URL (Postgres on Render) if set, otherwise local SQLite
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
