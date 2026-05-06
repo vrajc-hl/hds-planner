@@ -53,8 +53,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "hds_planner.wsgi.application"
 
-# SQLite — on Render use /data/db.sqlite3 (persistent disk mounted at /data)
-DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "db.sqlite3"))
+# SQLite — prefer /data/db.sqlite3 on Render (persistent disk), fall back to local
+_data_dir = "/data"
+if os.environ.get("DB_PATH"):
+    DB_PATH = os.environ["DB_PATH"]
+elif os.path.isdir(_data_dir):
+    DB_PATH = os.path.join(_data_dir, "db.sqlite3")
+else:
+    DB_PATH = str(BASE_DIR / "db.sqlite3")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
