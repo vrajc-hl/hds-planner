@@ -45,8 +45,8 @@ export default function App() {
         setAllTasksRaw(tasksData)
         setLoading(false)
       })
-      .catch(() => {
-        setError('Failed to load plan. Is the Django server running on port 8000?')
+      .catch((err) => {
+        setError(`Failed to load plan from API. ${import.meta.env.VITE_API_BASE ? `API: ${import.meta.env.VITE_API_BASE}` : 'Is the Django server running on port 8000?'}`)
         setLoading(false)
       })
   }, [])
