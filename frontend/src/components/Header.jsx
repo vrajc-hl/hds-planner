@@ -65,16 +65,22 @@ export default function Header({ plan, startDate, onStartDateChange, dirty, upda
             <span className="stat-value small">{computeEndDate()}</span>
           </div>
 
-          {plan && (
-            <button className="btn-export" onClick={onExport} title="Download current dependencies as CSV">
-              ↓ Export CSV
-            </button>
-          )}
-          {dirty && !updating && (
-            <button className="btn-revert" onClick={onRevert} title="Discard all unsaved changes">
-              Revert
-            </button>
-          )}
+          <button
+            className="btn-export"
+            onClick={onExport}
+            title="Download current dependencies as CSV"
+            style={{ visibility: plan ? 'visible' : 'hidden' }}
+          >
+            ↓ Export CSV
+          </button>
+          <button
+            className="btn-revert"
+            onClick={onRevert}
+            title="Discard all unsaved changes"
+            style={{ visibility: dirty && !updating ? 'visible' : 'hidden' }}
+          >
+            Revert
+          </button>
           <button
             className="btn-update"
             disabled={!dirty || updating}
