@@ -1,0 +1,44 @@
+services:
+  # ── Django API ──────────────────────────────────────────────────────────────
+  - type: web
+    name: hds-planner-api
+    runtime: python
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn hds_planner.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_PATH
+        value: /data/db.sqlite3
+      - key: PYTHON_VERSION
+        value: "3.10.14"
+    disk:
+      name: hds-data
+      mountPath: /data
+      sizeGB: 1
+
+  # ── React Static Site ───────────────────────────────────────────────────────
+  - type: web
+    name: hds-planner-ui
+    runtime: static
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE
+        fromService:
+          name: hds-planner-api
+          type: web
+          property: host
+          format: "https://{host}"
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
